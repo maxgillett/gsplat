@@ -126,13 +126,14 @@ class _RasterizeGaussians(Function):
             rasterize_fn = _C.rasterize_forward
         else:
             rasterize_fn = _C.nd_rasterize_forward
-        out_img, final_Ts, final_idx = rasterize_fn(
+        out_img, out_depth, final_Ts, final_idx = rasterize_fn(
             tile_bounds,
             block,
             img_size,
             gaussian_ids_sorted,
             tile_bins,
             xys,
+            depths,
             conics,
             colors,
             opacity,
@@ -155,12 +156,12 @@ class _RasterizeGaussians(Function):
 
         if return_alpha:
             out_alpha = 1 - final_Ts
-            return out_img, out_alpha
+            return out_img, out_depth, out_alpha
         else:
-            return out_img
+            return out_img, out_depth
 
     @staticmethod
-    def backward(ctx, v_out_img, v_out_alpha=None):
+    def backward(ctx, v_out_img, out_depth=None, v_out_alpha=None):
         img_height = ctx.img_height
         img_width = ctx.img_width
 
