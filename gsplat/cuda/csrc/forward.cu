@@ -296,6 +296,7 @@ __global__ void rasterize_forward(
     float T = 1.f;
     // index of most recent gaussian to write to this thread's pixel
     int cur_idx = 0;
+    float acc = 0.f;
 
     // collect and process batches of gaussians
     // each thread loads one gaussian at a time before rasterizing its
@@ -357,6 +358,7 @@ __global__ void rasterize_forward(
             pix_out.y = pix_out.y + c.y * vis;
             pix_out.z = pix_out.z + c.z * vis;
             depth_out = depth_out + d * vis;
+            acc = acc + vis;
             T = next_T;
             cur_idx = batch_start + t;
         }
@@ -372,7 +374,11 @@ __global__ void rasterize_forward(
         final_color.y = pix_out.y + T * background.y;
         final_color.z = pix_out.z + T * background.z;
         out_img[pix_id] = final_color;
-        out_depth[pix_id] = depth_out;
+        if (acc > 0.5f) {
+            out_depth[pix_id] = depth_out/acc;
+        } else {
+            out_depth[pix_id] = 0;
+        }
     }
 }
 

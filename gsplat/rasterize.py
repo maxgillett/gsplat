@@ -133,9 +133,9 @@ class _RasterizeGaussians(Function):
             gaussian_ids_sorted,
             tile_bins,
             xys,
-            depths,
             conics,
             colors,
+            depths,
             opacity,
             background,
         )
